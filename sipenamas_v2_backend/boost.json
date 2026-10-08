@@ -1,0 +1,17 @@
+{
+    "agents": [
+        "claude_code"
+    ],
+    "cloud": true,
+    "packages": [
+        "spatie/laravel-permission"
+    ],
+    "skills": [
+        "infer-conventions",
+        "deploying-to-cloud",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "tailwindcss-development",
+        "laravel-permission-development"
+    ]
+}

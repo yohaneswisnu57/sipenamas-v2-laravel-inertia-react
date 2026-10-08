@@ -1,0 +1,44 @@
+# Uji coba Inertia: https://sipenamasdev.ukwms.ac.id/refactor/inertia/
+#
+#   cd sipenamas_v2_backend
+#   docker compose -f docker/inertia/compose.yaml up -d --build
+#
+# Container memakai network host dan hanya mendengar di 127.0.0.1:8090;
+# nginx host meneruskan /refactor/inertia/ ke sini. Docker dipasang dengan
+# "iptables": false, jadi tidak ada port yang dibuka ke luar.
+name: sipenamas-inertia
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: docker/inertia/Dockerfile
+      network: host
+    image: sipenamas-inertia:latest
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      # Nilai lain (DB lokal dbsipenamas, SSO, mail) dibaca dari .env backend
+      # yang dipasang read-only; variabel di sini menimpanya.
+      APP_URL: https://sipenamasdev.ukwms.ac.id/refactor/inertia
+      ASSET_URL: /refactor/inertia
+      APP_DEBUG: "false"
+      LOG_CHANNEL: stderr
+      SESSION_DRIVER: file
+      SESSION_COOKIE: sipenamas_inertia_session
+      SESSION_PATH: /refactor/inertia
+      SESSION_SECURE_COOKIE: "true"
+      SESSION_SAME_SITE: lax
+      SANCTUM_STATEFUL_DOMAINS: sipenamasdev.ukwms.ac.id
+      LIBREOFFICE_BIN: /usr/bin/soffice
+    volumes:
+      - /home/wisnu/SIPENAMAS_V2/sipenamas_v2_backend/.env:/var/www/app/.env:ro
+      # Berkas unggahan dibagi dengan backend dev, karena DB-nya juga sama.
+      - /home/wisnu/SIPENAMAS_V2/sipenamas_v2_backend/storage/app:/var/www/app/storage/app
+      - /home/wisnu/sipenamas_legacy_code/appz/res:/home/wisnu/sipenamas_legacy_code/appz/res:ro
+      - framework:/var/www/app/storage/framework
+      - logs:/var/www/app/storage/logs
+
+volumes:
+  framework:
+  logs:

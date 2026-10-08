@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan RBAC & SSO — Sipenamas v2</title>
+<style>
+  :root {
+    --bg: #f7f7f8;
+    --panel: #ffffff;
+    --text: #1f2328;
+    --muted: #57606a;
+    --border: #d8dee4;
+    --accent: #2563eb;
+    --ok: #1a7f37;
+    --warn: #9a6700;
+    --risk: #b91c1c;
+    --code-bg: #f0f2f4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 16px 64px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  header {
+    padding: 32px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
+  h2 {
+    font-size: 1.15rem;
+    margin: 36px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 1rem; margin: 20px 0 8px; }
+  p { margin: 8px 0; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 14px 0;
+  }
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: #eef4ff;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 14px 0;
+  }
+  .callout.warn { border-left-color: var(--warn); background: #fff8e6; }
+  .callout.risk { border-left-color: var(--risk); background: #fdecec; }
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    background: var(--code-bg);
+    border-radius: 4px;
+  }
+  code { padding: 2px 5px; font-size: 0.88em; }
+  pre {
+    padding: 14px 16px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { background: #eef1f4; font-weight: 600; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge.done { background: #dafbe1; color: var(--ok); }
+  .badge.legacy { background: #fff1cc; color: var(--warn); }
+  .badge.risk { background: #ffe0e0; color: var(--risk); }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  .tree {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent: #4d8ef8;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --risk: #f85149;
+      --code-bg: #1c2128;
+    }
+    .callout { background: #12233f; }
+    .callout.warn { background: #3a2c07; }
+    .callout.risk { background: #3a1414; }
+    th { background: #1c2128; }
+    tr:nth-child(even) td { background: #12161c; }
+    .badge.done { background: #10331a; }
+    .badge.legacy { background: #3a2c07; }
+    .badge.risk { background: #3a1414; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Laporan RBAC & SSO — Sipenamas v2</h1>
+  <div class="subtitle">Analisis arsitektur auth, role/permission Spatie, dan integrasi SSO UKWMS</div>
+  <div class="meta">Backend: sipenamas_v2_backend &middot; Disusun 2026-09-18</div>
+</header>
+
+<div class="callout">
+  <strong>Temuan utama.</strong> Pondasi yang diinginkan — Spatie <em>fresh</em>, permission resource-based, SSO UKWMS, tanpa ketergantungan modul <code>groupakses</code> legacy — <strong>sudah dibangun dan berjalan</strong>. Pekerjaan yang tersisa bersifat <em>decommissioning &amp; hardening</em>, bukan pembangunan ulang.
+</div>
+
+<h2>1. Peta relasi User</h2>
+<div class="tree">User (users)
+ ├─ kodeperson (nullable, unique) ──→ Person.KODEPERSON   [anchor read-only, BUKAN FK bisnis]
+ ├─ kodepersonAliases() hasMany ────→ user_kodeperson_aliases  [riwayat NIP lama]
+ ├─ Spatie HasRoles ────────────────→ model_has_roles / model_has_permissions
+ ├─ kodeprodi (diisi via job sync) ─→ Prodi.KODEPRODI (lewat homebase_prodi_map crosswalk)
+ └─ actor / target di ImpersonationLog (via kodeperson)
+
+Person (person) — 9 relasi bisnis historis
+ (Penelitian, PenelitianTim, KegiatanAbdimas, Insentif, SubsidiApc, HkiPeserta, dst.)
+ └─ TIDAK LAGI dipakai untuk auth — KODEPERSON di tabel bisnis adalah
+    snapshot historis yang tidak boleh di-remap.</div>
+
+<p><strong>Kenapa <code>user_kodeperson_aliases</code> ada:</strong> NIP/kodeperson seseorang bisa berubah sepanjang karier. Tabel alias menjaga agar catatan bisnis lama (dimiliki kodeperson lama) tetap terlihat oleh identitas logis yang sama setelah NIP berubah.</p>
+
+<h2>2. Arsitektur SSO yang sudah live</h2>
+<ul>
+  <li><code>UkwmsSsoClient</code> → POST ke <code>api.ukwms.ac.id:8100/v1/auth/login</code> (port dari <code>dologinpegawai_curl()</code> legacy).</li>
+  <li><code>AuthController::login()</code>: user internal lewat SSO; user eksternal (<code>is_external=1</code>) lewat hash lokal <code>Dencoder::encode3t()</code> terhadap <code>paswet</code>.</li>
+  <li><strong>Auto-provisioning:</strong> login SSO sukses pertama kali → row <code>User</code> dibuat otomatis (hanya <code>kodeperson</code>, <code>nama</code>, <code>is_external</code> — <strong>tanpa role apa pun</strong>).</li>
+  <li><code>SyncUsersFromUwmsdm</code> (Artisan command terjadwal, bukan real-time): sinkron identitas batch dari DB eksternal <code>uwmsdm</code>.</li>
+  <li><code>MapHomebaseToProdi</code>: membangun crosswalk <code>homebase_prodi_map</code> dari nama satker <code>uwmsdm</code> ke <code>Prodi.NAMAPRODI</code> lokal.</li>
+</ul>
+
+<div class="callout">
+  <strong>Terverifikasi di kode (<code>AuthController.php</code> baris 52–73):</strong> user baru dari SSO dibuat tanpa role, dan login <strong>ditolak (403)</strong> jika <code>defaultRole()</code> kosong — sistem aktif memblokir user tanpa role, bukan sekadar diam.
+</div>
+
+<h2>3. Arsitektur RBAC yang sudah live</h2>
+<ul>
+  <li>Penamaan permission resource-based: <code>"&lt;verb&gt; &lt;resource&gt;"</code> — mis. <code>"approve penelitian"</code>, <code>"manage user"</code>.</li>
+  <li><code>PermissionCatalog</code> sebagai single source of truth permission-as-code; <code>PermissionLabelController</code> sengaja hanya edit label/deskripsi — permission set dikunci di kode.</li>
+  <li>6 role modul bawaan (<code>ADM/PEN/REV/DKN/RKT/AKR</code>) + <code>Super Admin</code>, dilindungi dari penghapusan; role custom bebas dibuat via <code>RoleController</code>.</li>
+  <li><code>Gate::before</code> beri Super Admin bypass total; dua middleware saja (<code>EnsureRole</code>, <code>EnsurePermission</code>) — <strong>tidak ada Policy class</strong> sama sekali.</li>
+  <li>Route data digate <code>permission:...</code>, dashboard/menu digate <code>role:...</code> — dipisah sengaja agar role custom tetap dapat akses data walau belum punya dashboard khusus.</li>
+</ul>
+
+<h2>4. Status komponen legacy</h2>
+<table>
+  <thead>
+    <tr><th>Komponen</th><th>Status</th><th>Blast radius</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Person.ISXXX</code> / <code>GROUPAKSES_*</code></td>
+      <td><span class="badge legacy">SATU ARAH</span> masih ditulis dari Spatie via <code>User::syncGroupAksesColumns()</code></td>
+      <td>Hanya untuk aplikasi PHP legacy lain yang masih baca <code>person</code> langsung</td>
+    </tr>
+    <tr>
+      <td><code>Groupakses</code> / <code>Groupaksesdetail</code></td>
+      <td><span class="badge risk">DEAD CODE</span> tidak direferensikan di mana pun kecuali dirinya sendiri</td>
+      <td><strong>Nol</strong> — aman dihapus kapan saja</td>
+    </tr>
+    <tr>
+      <td>5 Artisan command migrasi satu-kali<br><small>(SyncLegacyRolesToSpatie, MigratePersonRolesToUsers, MigrateGranularPermissions, DiffPermissionsSnapshot, AuditPersonUserLinks)</small></td>
+      <td><span class="badge legacy">SELESAI TUGAS</span> masih aktif di codebase</td>
+      <td>Rendah — mengotori <code>app/Console/Commands</code></td>
+    </tr>
+    <tr>
+      <td>Audit trail impersonasi</td>
+      <td><span class="badge done">AMAN</span> <code>created_at</code> di-set DB-level (<code>useCurrent()</code>) walau model <code>$timestamps=false</code></td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5. Tradeoff desain yang sudah diambil</h2>
+<div class="card">
+  <ol>
+    <li><strong>Permission-as-code, role-as-data</strong> — aman dari privilege creep liar via UI, tapi setiap kebutuhan permission granular baru = deploy kode, bukan klik admin panel.</li>
+    <li><strong>Dual gating</strong> (<code>role:</code> untuk dashboard, <code>permission:</code> untuk data) — role custom dapat akses API tapi belum tentu dapat menu di frontend, kecuali navigasi frontend juga dibuat permission-aware.</li>
+    <li><strong>Auto-provisioning saat login SSO pertama</strong> — nyaman, tapi eksistensi akun dipercayakan penuh ke apa pun yang dikembalikan SSO (dimitigasi oleh blokir 403 tanpa role).</li>
+  </ol>
+</div>
+
+<h2>6. Risiko tersisa &amp; cara penanganan</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>Risiko</th><th>Cara penanganan</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>SSO jadi <em>single point of failure</em> — user internal tidak punya fallback lokal.</td>
+      <td>Timeout + circuit breaker eksplisit di <code>UkwmsSsoClient</code>; UX error jelas; pertimbangkan jalur <em>break-glass</em> khusus Super Admin (diaudit ketat), bukan fallback password lokal untuk semua user.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Dual source of truth selama <code>syncGroupAksesColumns()</code> masih hidup.</td>
+      <td>Logging/alert saat sync gagal; tetapkan tanggal deprecation bersama pemilik aplikasi legacy lain; hapus shim setelah semua pindah.</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Identity drift — kodeperson berubah, alias tidak sinkron.</td>
+      <td>Jadwalkan <code>AuditPersonUserLinks</code> di scheduler secara periodik, bukan hanya sekali saat migrasi awal.</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Dead code menambah luas permukaan kode tanpa manfaat.</td>
+      <td>Arsipkan command migrasi satu-kali setelah dikonfirmasi jalan di semua environment; hapus <code>Groupakses</code>/<code>Groupaksesdetail</code> langsung (blast radius nol).</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><code>guard_name = 'sanctum'</code> hardcoded di seluruh role/permission.</td>
+      <td>Bukan urgent selama API-only, tapi dokumentasikan sebagai batasan desain agar tidak jadi kejutan bila nanti butuh guard <code>web</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Kesimpulan</h2>
+<p>Tidak perlu "merombak" apa pun — arsitektur RBAC + SSO yang diinginkan sudah berdiri dan berjalan dengan benar, termasuk dua titik yang sempat diragukan (default role user baru, dan timestamp audit impersonasi) — keduanya sudah diverifikasi langsung di kode dan terbukti aman. Fokus selanjutnya: <strong>decommissioning</strong> titik sambungan lama-baru yang sengaja dipertahankan untuk kompatibilitas.</p>
+
+<footer>
+  Dibuat oleh Claude Code untuk peninjauan internal &middot; sipenamas_v2_backend/.claude/laporan-rbac-sso.html
+</footer>
+
+</div>
+</body>
+</html>

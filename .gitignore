@@ -1,0 +1,53 @@
+.env
+*.env
+*.sql
+.DS_Store
+node_modules/
+vendor/
+sipenamas_legacy_code/
+reference_design/
+reference design/
+"reference design/"
+ukwms_ssl
+
+# Large or sensitive files: never commit
+.env.*
+!.env.example
+backup_sipenamas_production/
+*.sql.err
+*.csv
+*.phar
+*.pdf
+*.zip
+
+# User/backend uploads: never commit
+sipenamas_v2_backend/storage/app/legacy_res/
+sipenamas_v2_backend/storage/framework/testing/disks/
+sipenamas_v2_backend/public/storage
+uploads/
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.dump
+*.sqlite
+*.sqlite3
+
+# Key and certificate files
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Claude Code personal overrides
+.claude/settings.local.json
